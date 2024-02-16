@@ -16,7 +16,7 @@ import kik_unofficial.datatypes.xmpp.chatting as chatting
 from kik_unofficial.datatypes.xmpp.errors import LoginError
 from kik_unofficial.datatypes.xmpp.roster import FetchRosterResponse
 from helper_funcs import add_admin, is_user_admin, remove_admin
-super =
+super = ""
 logging.basicConfig(
 level=logging.ERROR,
 format="%(asctime)s [%(levelname)s]: %(message)s")
@@ -61,10 +61,16 @@ class EchoBot(KikClientCallback):
     # This method is called when the bot receives a chat message in a group
     def on_group_message_received(self, chat_message: chatting.IncomingGroupChatMessage):
         separator = colored("--------------------------------------------------------", "cyan")
+        group_message_header = colored("[+ GROUP MESSAGE +]", "cyan")
         print(separator)
+        print(group_message_header)
         print(colored(f"From AJID: {chat_message.from_jid}", "yellow"))
         print(colored(f"From group: {chat_message.group_jid}", "yellow"))
-        print(colored(f"Says: {chat_message.body}", "yellow"))
+        print(colored(f"Says: {chat_message.body}", "red"))
+
+        # Check if the message is related to the Blackjack game
+        if chat_message.group_jid in self.game_state:
+            print(separator)
         print(separator)
         if chat_message.from_jid in self.pending_math_problems:
             # Display the math problem to the user
@@ -119,7 +125,7 @@ class EchoBot(KikClientCallback):
             else:
                 self.client.send_chat_message(chat_message.group_jid, "You don't have permission to change captcha settings.")
 
-       def show_settings(self, group_jid):
+    def show_settings(self, group_jid):
         captcha_status = "Enabled" if self.get_captcha_status(group_jid) else "Disabled"
 
         settings_message = (
